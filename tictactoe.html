@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Tic Tac Toe</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
+            body {
+                font-family: 'Roboto', Arial, sans-serif;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                /* Fundo gradiente azul moderno */
+                background: linear-gradient(135deg, #0d47a1 0%, #6ec6ff 100%);
+            }
+            h1 {
+                font-family: 'Montserrat', Arial, sans-serif;
+                letter-spacing: 2px;
+                font-size: 2.7rem;
+                margin-top: 45px;
+                color: #ffd600;
+                text-shadow: 2px 2px 5px #001c4a80;
+                transition: color 0.4s;
+                filter: drop-shadow(0 2px 16px #3b177fb4);
+                animation: neon-title 2s infinite alternate;
+            }
+            @keyframes neon-title {
+                from {
+                    text-shadow: 0 0 8px #ffd600, 0 0 10px #fff2b2;
+                }
+                to {
+                    text-shadow: 0 0 20px #fff176, 0 0 36px #ffd600, 0 0 14px #ffeb3b;
+                }
+            }
+            #status {
+                border-radius: 20px;
+                background: linear-gradient(90deg,#fff 80%,#e3f2fd 100%);
+                display: inline-block;
+                padding: 12px 42px;
+                margin-top: 22px;
+                font-size: 1.35rem;
+                color: #0d47a1;
+                font-weight: 600;
+                letter-spacing: 1.2px;
+                box-shadow: 0 4px 20px #2574a980;
+                border: 2px solid #90caf9;
+                transition: background 0.3s, color 0.3s, box-shadow 0.22s;
+            }
+            .game-board {
+                display: grid;
+                grid-template-columns: repeat(3, 110px);
+                grid-template-rows: repeat(3, 110px);
+                gap: 18px;
+                justify-content: center;
+                margin-top: 44px;
+                /* Fundo gradiente com contraste alto */
+                background: linear-gradient(145deg, #003366 55%, #80d6ff 100%);
+                border-radius: 28px;
+                padding: 22px;
+                box-shadow: 0 8px 42px #0d47a185, 0 1.5px 36px #0d47a13e inset;
+                border: 4px solid #fff;
+                position: relative;
+                animation: boardGlow 2.3s infinite alternate;
+            }
+            @keyframes boardGlow {
+                0% {
+                    box-shadow: 0 8px 42px #0d47a1c7, 0 1.5px 36px #64b5f680 inset;
+                    border-color: #81d4fa;
+                }
+                100% {
+                    box-shadow: 0 8px 70px #00e0ffc7, 0 1.5px 36px #2962ffb4 inset;
+                    border-color: #ffd600;
+                }
+            }
+            .cell {
+                width: 110px;
+                height: 110px;
+                background: linear-gradient(135deg, #232a44 78%, #53b9ff 100%);
+                border: 3px solid #ffd600;
+                border-radius: 24px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 3.1rem;
+                font-family: 'Montserrat', Arial, sans-serif;
+                font-weight: bold;
+                cursor: pointer;
+                user-select: none;
+                box-shadow: 0 3px 14px #0006, 0 1.5px 12px #ffe08270 inset;
+                position: relative;
+                transition: 
+                    background 0.21s,
+                    box-shadow 0.18s,
+                    transform 0.13s,
+                    filter 0.24s,
+                    border-color 0.18s;
+                color: #fff;
+                filter: brightness(1.1);
+                animation: popIn 1s cubic-bezier(.41,1.17,.72,.92);
+            }
+            @keyframes popIn {
+                from {
+                    transform: scale(0.4) rotate(-12deg);
+                    filter: blur(5px) brightness(0.2);
+                    opacity: 0.3;
+                }
+                to {
+                    transform: scale(1) rotate(0);
+                    filter: blur(0) brightness(1.1);
+                    opacity: 1;
+                }
+            }
+            .cell.x {
+                color: #ffd600;
+                /* brilho em X */
+                text-shadow: 0 0 18px #ffd600a2, 
+                    0 0 34px #fff17670, 
+                    0 1px 3px #232a44a1;
+                animation: letterPop 0.4s cubic-bezier(.41,1.17,.72,.92);
+            }
+            .cell.o {
+                color: #fff;
+                text-shadow: 0 0 22px #00e5ff8e, 0 0 34px #fff7ff93, 0 1px 11px #006edc80;
+                animation: letterPop 0.4s cubic-bezier(.41,1.17,.72,.92);
+            }
+            @keyframes letterPop {
+                0% {
+                    filter: blur(3px) brightness(1.7);
+                    transform: scale(1.5) rotate(10deg);
+                    opacity: 0.2;
+                }
+                90% {
+                    opacity: 1;
+                    filter: blur(0.3px) brightness(1.2);
+                }
+                100% {
+                    transform: scale(1) rotate(0);
+                    filter: blur(0) brightness(1.1);
+                }
+            }
+            .cell:hover:not(.winner):not(.disabled) {
+                background: linear-gradient(145deg, #00c3ff 54%, #006992 100%);
+                transform: scale(1.10) rotate(-2deg);
+                box-shadow: 0 6px 30px #00e0ffc0, 0 1.5px 12px #ffd60060 inset;
+                border-color: #fff;
+                filter: brightness(1.22) saturate(1.1);
+                z-index: 2;
+            }
+            .cell:active:not(.winner):not(.disabled) {
+                background: linear-gradient(147deg, #00416a 60%, #00baff 100%);
+                border-color: #ffd600;
+                transform: scale(0.94);
+                filter: brightness(0.98) grayscale(20%);
+            }
+            .cell.disabled {
+                pointer-events: none;
+                filter: grayscale(40%) contrast(0.85) opacity(0.82) blur(0.5px);
+            }
+            .winner {
+                background: linear-gradient(120deg, #00ffc1 60%, #ffd600 130%);
+                box-shadow: 0 0 25px #ffd600cc, 0 0 28px #00ffc180;
+                border-color: #fff;
+                animation: winner-pulse 0.9s infinite alternate, winnerGlow 2.2s infinite alternate;
+                color: #225e22 !important;
+                text-shadow: 0 0 11px #fffde460, 0 1px 1px #ffe08290;
+            }
+            @keyframes winner-pulse {
+                0% { transform: scale(1.07);}
+                100% { transform: scale(0.94);}
+            }
+            @keyframes winnerGlow {
+                from {
+                    box-shadow: 0 0 25px #ffd600cc, 0 0 28px #00ffc180;
+                    filter: brightness(1.1) blur(0.2px);
+                }
+                to {
+                    box-shadow: 0 0 57px #fff176, 0 0 44px #1fffa580;
+                    filter: brightness(1.3) blur(0.3px);
+                }
+            }
+            button {
+                margin-top: 25px;
+                padding: 14px 42px;
+                border: none;
+                background: linear-gradient(90deg, #00c3ff 10%, #006992 100%);
+                color: #ffd600;
+                font-size: 1.18rem;
+                font-family: 'Montserrat', Arial, sans-serif;
+                font-weight: 700;
+                border-radius: 27px;
+                box-shadow: 0 3px 18px #0003, 0 1px 3px #fff7;
+                cursor: pointer;
+                letter-spacing: 1px;
+                outline: none;
+                transition: background 0.18s, transform 0.14s, box-shadow 0.18s, color 0.2s;
+                filter: brightness(1.09);
+            }
+            button:hover {
+                background: linear-gradient(90deg, #ffd600 10%, #00e5ff 100%);
+                color: #232a44;
+                transform: scale(1.05);
+                box-shadow: 0 3px 22px #ffd60090;
+                filter: brightness(1.14) drop-shadow(0 0 10px #fff58888);
+            }
+            button:active {
+                background: linear-gradient(90deg, #232a44 10%, #ffd600 100%);
+                color: #fff;
+                filter: brightness(1.01);
+            }
+            footer {
+                margin-top: auto;
+                padding: 16px 8px 26px 8px;
+                font-size: 1.09rem;
+                color: #ffd600;
+                background: linear-gradient(92deg, #00c3ff 40%, #003366 110%);
+                border-top: 3px solid #ffd600cc;
+                font-family: 'Montserrat', Arial, sans-serif;
+                text-shadow: 0 0 7px #003366bb, 1px 1px 2px #fffde480;
+                filter: saturate(1.2);
+                letter-spacing: 2px;
+            }
+            /* Tooltip animado para interação */
+            .cell::after {
+                content: attr(data-tooltip);
+                opacity: 0;
+                position: absolute;
+                bottom: -36px;
+                left: 50%;
+                transform: translateX(-50%) scale(0.92);
+                pointer-events: none;
+                font-size: 1.02rem;
+                background: linear-gradient(90deg,#fff 75%,#ffd600 100%);
+                color: #114e97;
+                padding: 6px 16px;
+                border-radius: 12px;
+                box-shadow: 0 2px 9px #00000022, 0 1px 1.5px #ffd60044;
+                border: 2px solid #00e5ff55;
+                font-family: 'Roboto', Arial, sans-serif;
+                font-weight: 600;
+                transition: opacity 0.16s, transform 0.24s cubic-bezier(.66,1.51,.78,.93);
+                z-index: 4;
+                white-space: nowrap;
+                pointer-events: none;
+                letter-spacing: 0.7px;
+            }
+            .cell:hover::after {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.08);
+                animation: tooltipPop 0.42s cubic-bezier(.44,1.69,.62,.88);
+            }
+            @keyframes tooltipPop {
+                0% { opacity: 0; transform: translateX(-50%) scale(0.7);}
+                80% { opacity: 1; transform: translateX(-50%) scale(1.13);}
+                100% { transform: translateX(-50%) scale(1.08);}
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Let's Play Tic Tac Toe</h1>
+        <div id="status" style="margin-top: 20px; font-size: 1.2rem;"></div>
+        <div class="game-board" id="gameBoard">
+            <div class="cell" onclick="makeMove(0)"></div>
+            <div class="cell" onclick="makeMove(1)"></div>
+            <div class="cell" onclick="makeMove(2)"></div>
+            <div class="cell" onclick="makeMove(3)"></div>
+            <div class="cell" onclick="makeMove(4)"></div>
+            <div class="cell" onclick="makeMove(5)"></div>
+            <div class="cell" onclick="makeMove(6)"></div>
+            <div class="cell" onclick="makeMove(7)"></div>
+            <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+        <button style="margin-top: 25px;" onclick="resetGame()">Restart Game</button>
+        <footer>
+            created by Lord Mykael
+        </footer>
+        <script>
+            let currentPlayer = 'X';
+            let gameBoard = ['', '', '', '', '', '', '', '', ''];
+            let isGameOver = false;
+
+            const winningCombos = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            function displayStatus(msg) {
+                document.getElementById('status').textContent = msg;
+            }
+
+            function makeMove(cellIndex) {
+                if (isGameOver || gameBoard[cellIndex] !== '') return;
+
+                gameBoard[cellIndex] = currentPlayer;
+                document.getElementsByClassName('cell')[cellIndex].textContent = currentPlayer;
+
+                const winnerCombo = checkWinner();
+                if (winnerCombo) {
+                    isGameOver = true;
+                    highlightWinner(winnerCombo);
+                    displayStatus(`Player ${currentPlayer} wins!`);
+                    return;
+                } else if (gameBoard.every(cell => cell !== '')) {
+                    isGameOver = true;
+                    displayStatus("It's a draw!");
+                    return;
+                } else {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                    displayStatus(`Player ${currentPlayer}'s turn`);
+                }
+            }
+
+            function checkWinner() {
+                for (let combo of winningCombos) {
+                    const [a, b, c] = combo;
+                    if (
+                        gameBoard[a] &&
+                        gameBoard[a] === gameBoard[b] &&
+                        gameBoard[a] === gameBoard[c]
+                    ) {
+                        return combo;
+                    }
+                }
+                return null;
+            }
+
+            function highlightWinner(combo) {
+                for (let i of combo) {
+                    document.getElementsByClassName('cell')[i].classList.add('winner');
+                }
+            }
+
+            function resetGame() {
+                gameBoard = ['', '', '', '', '', '', '', '', ''];
+                isGameOver = false;
+                currentPlayer = 'X';
+                const cells = document.getElementsByClassName('cell');
+                for (let cell of cells) {
+                    cell.textContent = '';
+                    cell.classList.remove('winner');
+                }
+                displayStatus(`Player ${currentPlayer}'s turn`);
+            }
+
+            // Initialize status message
+            displayStatus(`Player ${currentPlayer}'s turn`);
+        </script>
+    </body>
+</html>
